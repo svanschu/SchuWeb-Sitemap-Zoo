@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- sw.build.version -->
 <extension type="plugin" group="schuweb_sitemap" method="upgrade">
-    <name>SchuWeb Sitemap - SchuWeb Sitemap Integration for Zoo</name>
+    <name>PLG_SCHUWEB_SITEMAP_ZOO</name>
     <author>Sven Schultschik</author>
-    <creationDate>sw.build.date</creationDate>
-    <copyright>Sven Schultschik</copyright>
-    <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
-    <authorEmail>schuwebext@schultschik.de</authorEmail>
-    <authorUrl>extensions.schultschik.com</authorUrl>
-    <version>sw.build.version</version>
+	<creationDate>sw.build.date</creationDate>
+	<copyright>Copyright (C) 2022 - 2023 SchuWeb Extensions. All rights reserved.</copyright>
+	<license>https://www.gnu.org/licenses/gpl-3.0.html GNU/GPLv3</license>
+	<authorEmail>extensions@schultschik.de</authorEmail>
+	<authorUrl>extensions.schultschik.de</authorUrl>
+	<version>sw.build.version</version>
     <description>SCHUWEB_SITEMAP_ZOO_PLUGIN_DESCRIPTION</description>
     <files>
         <filename plugin="zoo">zoo.php</filename>
-        <filename>index.html</filename>
+        <folder>language</folder>
     </files>
     <scriptfile>script.php</scriptfile>
     <updateservers>
         <server type="extension" priority="1" name="SchuWeb Sitemap - Zoo Integration">
-            https://raw.githubusercontent.com/svanschu/SchuWeb-Sitemap/master/update/schuweb_sitemap_plugin_zoo.xml
+            https://github.com/svanschu/SchuWeb-Sitemap-Zoo/raw/main/update.xml
         </server>
     </updateservers>
     <languages folder="language">
-        <language tag="en-GB">en-GB/en-GB.plg_schuweb_sitemap_zoo.ini</language>
-        <language tag="en-GB">en-GB/en-GB.plg_schuweb_sitemap_zoo.sys.ini</language>
+        <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.ini</language>
+        <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.sys.ini</language>
     </languages>
     <config>
         <fields name="params">
