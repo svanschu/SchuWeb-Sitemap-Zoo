@@ -152,7 +152,7 @@ class schuweb_sitemap_zoo
             // get items info from database
             // basically it select those items that are published now (publish_up is less then now, meaning it's in past)
             // and not unpublished yet (either not have publish_down date set, or that date is in future)
-            
+
             // $queryi = 'SELECT i.id, i.name, i.publish_up ,i.application_id ,i.modified' .
             //     ' FROM #__zoo_item i' .
             //     ' WHERE i.application_id= ' . $appid .
@@ -168,14 +168,16 @@ class schuweb_sitemap_zoo
                     $db->qn('publish_up'),
                     $db->qn('application_id'),
                     $db->qn('modified')
-                ))
+                )
+            )
                 ->from($db->qn('#__zoo_item'))
                 ->where(
                     array(
                         $db->qn('application_id') . '=' . $db->q($appid),
                         'DATEDIFF(' . $db->qn('publish_up') . ' , NOW()) <=0',
                         'IF(' . $db->qn('publish_down') . ' >0, DATEDIFF( ' . $db->qn('publish_down') . ', NOW( ) ) >0, true )'
-                    ))
+                    )
+                )
                 ->order($db->qn('publish_up'));
 
             if ($sitemap->isNewssitemap()) {
