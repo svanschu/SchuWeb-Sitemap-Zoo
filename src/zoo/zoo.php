@@ -178,6 +178,9 @@ class schuweb_sitemap_zoo
                     ))
                 ->order($db->qn('publish_up'));
 
+            if ($sitemap->isNewssitemap()) {
+                $query->where($db->qn('created') . ' > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL -2 DAY)');
+            }
 
             $db->setQuery($query);
             $items = $db->loadObjectList();
@@ -206,7 +209,7 @@ class schuweb_sitemap_zoo
 
                 $node->expandible = true;
                 $node->lastmod    = $parent->lastmod;
-                $node->modified   = strtotime($item->modified);
+                $node->modified   = $item->modified;
                 $node->newsItem   = 1; // if we are making news map and it get this far, it's news
 
                 if (!isset($parent->subnodes))
