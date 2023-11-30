@@ -11,8 +11,10 @@
  */
 defined('_JEXEC') or die;
 
-use Joomla\Utilities\ArrayHelper;
+use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Factory;
+use Joomla\Utilities\ArrayHelper;
+use Joomla\Registry\Registry;
 
 class schuweb_sitemap_zoo
 {
@@ -49,7 +51,8 @@ class schuweb_sitemap_zoo
         $include_items           = ArrayHelper::getValue($params, 'include_items', 1);
         $include_items           = ($include_items == 1
             || ($include_items == 2 && $sitemap->isXmlsitemap())
-            || ($include_items == 3 && !$sitemap->isXmlsitemap()));
+            || ($include_items == 3 && !$sitemap->isXmlsitemap())
+            || $sitemap->isImagesitemap());
         $params['include_items'] = $include_items;
 
         $priority   = ArrayHelper::getValue($params, 'cat_priority', $parent->priority);
@@ -153,13 +156,6 @@ class schuweb_sitemap_zoo
             // basically it select those items that are published now (publish_up is less then now, meaning it's in past)
             // and not unpublished yet (either not have publish_down date set, or that date is in future)
 
-            // $queryi = 'SELECT i.id, i.name, i.publish_up ,i.application_id ,i.modified' .
-            //     ' FROM #__zoo_item i' .
-            //     ' WHERE i.application_id= ' . $appid .
-            //     ' AND DATEDIFF( i.publish_up, NOW( ) ) <=0' .
-            //     ' AND IF( i.publish_down >0, DATEDIFF( i.publish_down, NOW( ) ) >0, true )' .
-            //     ' ORDER BY i.publish_up';
-
             $query = $db->getQuery(true);
             $query->select(
                 array(
@@ -167,7 +163,8 @@ class schuweb_sitemap_zoo
                     $db->qn('name'),
                     $db->qn('publish_up'),
                     $db->qn('application_id'),
-                    $db->qn('modified')
+                    $db->qn('modified'),
+                    $db->qn('elements')
                 )
             )
                 ->from($db->qn('#__zoo_item'))
@@ -214,6 +211,9 @@ class schuweb_sitemap_zoo
                 $node->modified   = $item->modified;
                 $node->newsItem   = 1; // if we are making news map and it get this far, it's news
 
+                if ($sitemap->isImagesitemap())
+                    $node->images = self::getImages($item->elements);
+
                 if (!isset($parent->subnodes))
                     $parent->subnodes = new \stdClass();
 
@@ -222,5 +222,69 @@ class schuweb_sitemap_zoo
                 $parent->subnodes->$id = $node;
             }
         }
+    }
+
+    static function getImages(&$elements_json)
+    {
+        $urlBase = Uri::base();
+
+        $urlBaseLen = strlen($urlBase);
+
+        $images = null;
+
+        $elements = new Registry($elements_json);
+
+        foreach ($elements as $element) {
+            if (
+                isset($element->{0})
+                && isset($element->{0}->value)
+                && $element->{0}->value != ""
+            ) {
+                $text     = $element->{0}->value;
+                $matches1 = $matches2 = array();
+                // Look <img> tags
+                preg_match_all('/<img[^>]*?(?:(?:[^>]*src="(?P<src>[^"]+)")|(?:[^>]*alt="(?P<alt>[^"]+)")|(?:[^>]*title="(?P<title>[^"]+)"))+[^>]*>/i', $text, $matches1, PREG_SET_ORDER);
+                // Loog for <a> tags with href to images
+                preg_match_all('/<a[^>]*?(?:(?:[^>]*href="(?P<src>[^"]+\.(gif|png|jpg|jpeg))")|(?:[^>]*alt="(?P<alt>[^"]+)")|(?:[^>]*title="(?P<title>[^"]+)"))+[^>]*>/i', $text, $matches2, PREG_SET_ORDER);
+                $matches = array_merge($matches1, $matches2);
+                if (count($matches)) {
+                    $images = array();
+
+                    $count = count($matches);
+                    for ($i = 0; $i < $count; $i++) {
+                        if (trim($matches[$i]['src']) && (substr($matches[$i]['src'], 0, 1) == '/' || !preg_match('/^https?:\/\//i', $matches[$i]['src']) || substr($matches[$i]['src'], 0, $urlBaseLen) == $urlBase)) {
+                            $src = $matches[$i]['src'];
+                            if (substr($src, 0, 1) == '/') {
+                                $src = substr($src, 1);
+                            }
+                            if (!preg_match('/^https?:\//i', $src)) {
+                                $src = $urlBase . $src;
+                            }
+                            $image        = new stdClass;
+                            $image->src   = $src;
+                            $image->title = (isset($matches[$i]['title']) ? $matches[$i]['title'] : @$matches[$i]['alt']);
+                            $images[]     = $image;
+                        }
+                    }
+                }
+            }
+
+            if (
+                property_exists($element, "lightbox_image")
+                && isset($element->file)
+                && !empty($element->file)
+            ) {
+
+                $src = $element->file;
+                if (!preg_match('/^https?:\//i', $src)) {
+                    $src = $urlBase . $src;
+                }
+                $image      = new stdClass;
+                $image->src = $src;
+                $images[]   = $image;
+            }
+        }
+
+        return $images;
     }
 }
