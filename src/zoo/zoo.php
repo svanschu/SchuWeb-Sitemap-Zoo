@@ -1,14 +1,12 @@
 <?php
 /**
- * @package     SchuWeb_Sitemap
- * @subpackage  SchuWeb_Sitemap_Zoo
- * 
  * @version     sw.build.version
- * @author      Sven Schultschik
- * @copyright   (C) 2010 - 2023 Sven Schultschik. All rights reserved
- * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- * @link        http://extensions.schultschik.de
+ * @copyright   Copyright (C) 2019 - 2023 Sven Schultschik. All rights reserved
+ * @license     GPL-3.0-or-later
+ * @author      Sven Schultschik (extensions@schultschik.de)
+ * @link        extensions.schultschik.de
  */
+
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Uri\Uri;
