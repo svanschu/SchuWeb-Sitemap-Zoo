@@ -19,6 +19,7 @@
             https://raw.githubusercontent.com/svanschu/SchuWeb-Sitemap-Zoo/main/update.xml
         </server>
     </updateservers>
+    <changelogurl>https://raw.githubusercontent.com/svanschu/SchuWeb-Sitemap-Zoo/main/changelog.xml</changelogurl>
     <languages folder="language">
         <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.ini</language>
         <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.sys.ini</language>
