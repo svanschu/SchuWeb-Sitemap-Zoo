@@ -134,11 +134,7 @@ class schuweb_sitemap_zoo
                 $node->priority   = $params['cat_priority'];
                 $node->changefreq = $params['cat_changefreq'];
 
-                $node->xmlInsertChangeFreq = $parent->xmlInsertChangeFreq;
-                $node->xmlInsertPriority   = $parent->xmlInsertPriority;
-
                 $node->expandible = true;
-                $node->lastmod    = $parent->lastmod;
 
                 if (!isset($parent->subnodes))
                     $parent->subnodes = new \stdClass();
@@ -201,11 +197,7 @@ class schuweb_sitemap_zoo
                 $node->priority   = $params['item_priority'];
                 $node->changefreq = $params['item_changefreq'];
 
-                $node->xmlInsertChangeFreq = $parent->xmlInsertChangeFreq;
-                $node->xmlInsertPriority   = $parent->xmlInsertPriority;
-
                 $node->expandible = true;
-                $node->lastmod    = $parent->lastmod;
                 $node->modified   = $item->modified;
                 $node->newsItem   = 1; // if we are making news map and it get this far, it's news
 
