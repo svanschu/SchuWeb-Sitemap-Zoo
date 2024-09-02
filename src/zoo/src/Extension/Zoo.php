@@ -7,20 +7,51 @@
  * @link        extensions.schultschik.de
  */
 
-defined('_JEXEC') or die;
+namespace SchuWeb\Plugin\SchuWeb_Sitemap\Zoo\Extension;
+
+\defined('_JEXEC') or die;
 
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\Registry\Registry;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\Event\SubscriberInterface;
+use Joomla\Database\DatabaseDriver;
+use Joomla\Database\DatabaseInterface;
+use SchuWeb\Component\Sitemap\Site\Event\MenuItemPrepareEvent;
+use SchuWeb\Component\Sitemap\Site\Event\TreePrepareEvent;
 
-class schuweb_sitemap_zoo
+class Zoo extends CMSPlugin implements SubscriberInterface
 {
-    protected static $_menu_items;
-
-    static function prepareMenuItem(&$node, &$params)
+    /**
+     * @since __BUMP_VERSION__
+     */
+    public static function getSubscribedEvents(): array
     {
-        $link_query = parse_url($node->link);
+        return [
+            'onGetMenus' => 'onGetMenus',
+            'onGetTree'  => 'onGetTree',
+        ];
+    }
+
+    /**
+     * This function is called before a menu item is printed. We use it to set the
+     * proper uniqueid for the item
+     *
+     * @param   MenuItemPrepareEvent  Event object
+     *
+     * @return void
+     * @since  __BUMP_VERSION__
+     */
+    public function onGetMenus(MenuItemPrepareEvent $event)
+    {
+        $menu_item  = $event->getMenuItem();
+        $link_query = parse_url($menu_item->link);
+        if (!isset($link_query['query'])) {
+            return;
+        }
+
         parse_str(html_entity_decode($link_query['query']), $link_vars);
         $component = ArrayHelper::getValue($link_vars, 'option', '');
         $view      = ArrayHelper::getValue($link_vars, 'view', '');
@@ -28,33 +59,46 @@ class schuweb_sitemap_zoo
         if ($component == 'com_zoo' && $view == 'frontpage') {
             $id = intval(ArrayHelper::getValue($link_vars, 'id', 0));
             if ($id != 0) {
-                $node->uid        = 'zoo' . $id;
-                $node->expandible = false;
+                $menu_item->uid        = "zoo{$id}";
+                $menu_item->expandible = false;
             }
         }
     }
 
-    static function getTree(&$sitemap, &$parent, &$params)
+    /**
+     * Expands a com_content menu item
+     *
+     * @param   TreePrepareEvent  Event object
+     *
+     * @return void
+     * @since  __BUMP_VERSION__
+     */
+    public function onGetTree(TreePrepareEvent $event)
     {
+        $sitemap = $event->getSitemap();
+        $parent  = $event->getNode();
+
+        if ($parent->option != "com_zoo")
+            return null;
 
         $link_query = parse_url($parent->link);
         parse_str(html_entity_decode($link_query['query']), $link_vars);
 
-        $include_categories           = ArrayHelper::getValue($params, 'include_categories', 1);
+        $include_categories           = $this->params->get('include_categories', 1);
         $include_categories           = ($include_categories == 1
             || ($include_categories == 2 && $sitemap->isXmlsitemap())
             || ($include_categories == 3 && !$sitemap->isXmlsitemap()));
         $params['include_categories'] = $include_categories;
 
-        $include_items           = ArrayHelper::getValue($params, 'include_items', 1);
+        $include_items           = $this->params->get('include_items', 1);
         $include_items           = ($include_items == 1
             || ($include_items == 2 && $sitemap->isXmlsitemap())
             || ($include_items == 3 && !$sitemap->isXmlsitemap())
             || $sitemap->isImagesitemap());
         $params['include_items'] = $include_items;
 
-        $priority   = ArrayHelper::getValue($params, 'cat_priority', $parent->priority);
-        $changefreq = ArrayHelper::getValue($params, 'cat_changefreq', $parent->changefreq);
+        $priority   = $this->params->get('cat_priority', $parent->priority);
+        $changefreq = $this->params->get('cat_changefreq', $parent->changefreq);
         if ($priority == '-1')
             $priority = $parent->priority;
         if ($changefreq == '-1')
@@ -63,8 +107,8 @@ class schuweb_sitemap_zoo
         $params['cat_priority']   = $priority;
         $params['cat_changefreq'] = $changefreq;
 
-        $priority   = ArrayHelper::getValue($params, 'item_priority', $parent->priority);
-        $changefreq = ArrayHelper::getValue($params, 'item_changefreq', $parent->changefreq);
+        $priority   = $this->params->get('item_priority', $parent->priority);
+        $changefreq = $this->params->get('item_changefreq', $parent->changefreq);
         if ($priority == '-1')
             $priority = $parent->priority;
 
@@ -80,7 +124,8 @@ class schuweb_sitemap_zoo
 
     static function getCategoryTree(&$sitemap, &$parent, &$params)
     {
-        $db = Factory::getDBO();
+        /** @var DatabaseDriver $db */
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
 
         // first we fetch what application we are talking about
 
@@ -124,7 +169,7 @@ class schuweb_sitemap_zoo
             $cats = $db->loadObjectList();
 
             foreach ($cats as $cat) {
-                $node             = new stdclass;
+                $node             = new \stdclass;
                 $node->id         = $parent->id;
                 $id               = $node->uid = $parent->uid . 'c' . $cat->id;
                 $node->browserNav = $parent->browserNav;
@@ -187,7 +232,7 @@ class schuweb_sitemap_zoo
                 ) {
                     continue;
                 }
-                $node             = new stdclass;
+                $node             = new \stdclass;
                 $node->id         = $parent->id;
                 $id               = $node->uid = $parent->uid . 'i' . $item->id;
                 $node->browserNav = $parent->browserNav;
@@ -250,7 +295,7 @@ class schuweb_sitemap_zoo
                             if (!preg_match('/^https?:\//i', $src)) {
                                 $src = $urlBase . $src;
                             }
-                            $image        = new stdClass;
+                            $image        = new \stdClass;
                             $image->src   = $src;
                             $image->title = (isset($matches[$i]['title']) ? $matches[$i]['title'] : @$matches[$i]['alt']);
                             $images[]     = $image;
@@ -269,7 +314,7 @@ class schuweb_sitemap_zoo
                 if (!preg_match('/^https?:\//i', $src)) {
                     $src = $urlBase . $src;
                 }
-                $image      = new stdClass;
+                $image      = new \stdClass;
                 $image->src = $src;
                 $images[]   = $image;
             }

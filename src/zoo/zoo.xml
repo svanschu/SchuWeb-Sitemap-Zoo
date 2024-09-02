@@ -9,21 +9,22 @@
 	<authorUrl>extensions.schultschik.de</authorUrl>
 	<version>sw.build.version</version>
     <description>SCHUWEB_SITEMAP_ZOO_PLUGIN_DESCRIPTION</description>
+    <namespace path="src">SchuWeb\Plugin\SchuWeb_Sitemap\Zoo</namespace>
     <files>
-        <filename plugin="zoo">zoo.php</filename>
-        <folder>language</folder>
+        <folder plugin="zoo">services</folder>
+        <folder>src</folder>
     </files>
     <scriptfile>script.php</scriptfile>
+    <languages folder="language">
+        <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.ini</language>
+        <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.sys.ini</language>
+    </languages>
     <updateservers>
         <server type="extension" priority="1" name="SchuWeb Sitemap - Zoo Integration">
             https://raw.githubusercontent.com/svanschu/SchuWeb-Sitemap-Zoo/main/update.xml
         </server>
     </updateservers>
     <changelogurl>https://raw.githubusercontent.com/svanschu/SchuWeb-Sitemap-Zoo/main/changelog.xml</changelogurl>
-    <languages folder="language">
-        <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.ini</language>
-        <language tag="en-GB">en-GB/plg_schuweb_sitemap_zoo.sys.ini</language>
-    </languages>
     <config>
         <fields name="params">
             <fieldset name="BASIC">
