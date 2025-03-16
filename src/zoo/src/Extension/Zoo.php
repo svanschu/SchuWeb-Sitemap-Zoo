@@ -127,27 +127,12 @@ class Zoo extends CMSPlugin implements SubscriberInterface
         /** @var DatabaseDriver $db */
         $db = Factory::getContainer()->get(DatabaseInterface::class);
 
-        // first we fetch what application we are talking about
-
         $app        = Factory::getApplication();
         $menu       = $app->getMenu('site');
         $menuparams = $menu->getParams($parent->id);
         $appid      = intval($menuparams->get('application', 0));
 
-        // if selected, we print title category
         if ($params['include_categories']) {
-
-            // we print title if there is any
-            // commented out as non-functioning - Matt Faulds
-            //	if ($params['categories_title'] != "" && !$sitemap->isXmlsitemap()) {
-            //		echo "<".$params['categories_title_tag'].">".$params['categories_title']."</".$params['categories_title_tag'].">";
-            //	}
-            // get categories info from database
-
-            // $queryc = 'SELECT c.id, c.name ' .
-            //     'FROM #__zoo_category c ' .
-            //     ' WHERE c.application_id = ' . $appid . ' AND c.published=1 ' .
-            //     ' ORDER by c.ordering';
 
             $query = $db->getQuery(true);
             $query->select(
@@ -191,7 +176,6 @@ class Zoo extends CMSPlugin implements SubscriberInterface
         }
 
         if ($params['include_items']) {
-            // get items info from database
             // basically it select those items that are published now (publish_up is less then now, meaning it's in past)
             // and not unpublished yet (either not have publish_down date set, or that date is in future)
 
@@ -223,9 +207,7 @@ class Zoo extends CMSPlugin implements SubscriberInterface
             $db->setQuery($query);
             $items = $db->loadObjectList();
 
-            // now we print items
             foreach ($items as $item) {
-                // if we are making news map, we should ignore items older then 3 days
                 if (
                     $sitemap->isNews
                     && strtotime($item->publish_up) < ($sitemap->now - (3 * 86400))
