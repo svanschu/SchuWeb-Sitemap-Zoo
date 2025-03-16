@@ -17,23 +17,22 @@ use Joomla\DI\ServiceProviderInterface;
 use Joomla\Event\DispatcherInterface;
 use SchuWeb\Plugin\SchuWeb_Sitemap\Zoo\Extension\Zoo;
 
-    return new class() implements ServiceProviderInterface
+return new class () implements ServiceProviderInterface {
+    public function register(Container $container)
     {
-        public function register(Container $container)
-        {
-            $container->set(
-                PluginInterface::class,
-                function (Container $container) {
-    
-                    $config = (array) PluginHelper::getPlugin('schuweb_sitemap', 'zoo');
-                    $subject = $container->get(DispatcherInterface::class);
-                    $app = Factory::getApplication();
-                    
-                    $plugin = new Zoo($subject, $config);
-                    $plugin->setApplication($app);
-    
-                    return $plugin;
-                }
-            );
-        }
-    };
+        $container->set(
+            PluginInterface::class,
+            function (Container $container) {
+
+                $config  = (array) PluginHelper::getPlugin('schuweb_sitemap', 'zoo');
+                $subject = $container->get(DispatcherInterface::class);
+                $app     = Factory::getApplication();
+
+                $plugin = new Zoo($subject, $config);
+                $plugin->setApplication($app);
+
+                return $plugin;
+            }
+        );
+    }
+};
