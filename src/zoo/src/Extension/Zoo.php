@@ -118,11 +118,11 @@ class Zoo extends CMSPlugin implements SubscriberInterface
         $params['item_priority']   = $priority;
         $params['item_changefreq'] = $changefreq;
 
-        self::getCategoryTree($sitemap, $parent, $params);
+        $this->getCategoryTree($sitemap, $parent, $params);
 
     }
 
-    static function getCategoryTree(&$sitemap, &$parent, &$params)
+    private function getCategoryTree(&$sitemap, &$parent, &$params)
     {
         /** @var DatabaseDriver $db */
         $db = Factory::getContainer()->get(DatabaseInterface::class);
@@ -229,7 +229,7 @@ class Zoo extends CMSPlugin implements SubscriberInterface
                 $node->newsItem   = 1; // if we are making news map and it get this far, it's news
 
                 if ($sitemap->isImagesitemap())
-                    $node->images = self::getImages($item->elements);
+                    $node->images = $this->getImages($item->elements);
 
                 if (!isset($parent->subnodes))
                     $parent->subnodes = new \stdClass();
@@ -241,7 +241,7 @@ class Zoo extends CMSPlugin implements SubscriberInterface
         }
     }
 
-    static function getImages(&$elements_json)
+    private function getImages(&$elements_json)
     {
         $urlBase = Uri::base();
 
